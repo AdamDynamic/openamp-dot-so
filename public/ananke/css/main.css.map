@@ -1,7 +1,7 @@
 {
 	"version": 3,
 	"file": "main.css",
-	"sourceRoot": "/mnt/c/Users/kissa/Documents/Projects/OpenAmp/test4",
+	"sourceRoot": "/mnt/c/Users/kissa/Documents/Projects/OpenAmp/openamp-dot-so",
 	"sources": [
 		"ananke/css/main.css"
 	],
