@@ -1,0 +1,10 @@
+{{- /* A NOTE FROM THE CONTRIBUTOR — attributed prose in the
+   contributor's own voice (front matter `note`). Attribution is plain:
+   "Contributed by <name>", never signed with flourishes. */ -}}
+{{ with .Params.note }}
+<section class="contributor-note">
+  <h2>A note from the contributor</h2>
+  <div class="prose">{{ . | markdownify }}</div>
+  <p class="attribution">Contributed by {{ $.Params.contributor }}</p>
+</section>
+{{ end }}

@@ -1,0 +1,23 @@
+{{- /* The contents page register: a dense numbered list, magazine-contents style. */ -}}
+<div class="wrap">
+  <ol class="contents">
+    {{- /* Newest first, matching the homepage's ordering law; the numbers
+     themselves carry the chronology and the finding aid handles
+     lookup. */ -}}
+    {{ range ((where site.RegularPages "Section" "catalogue").ByParam "number").Reverse }}
+    {{ $p := . }}
+    <li class="contents-row" data-category="{{ .Params.category }}"{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}>
+      <a class="contents-link" href="{{ .RelPermalink }}">
+        <span class="contents-num mono" style="view-transition-name: {{ lower .Params.number }};">{{ .Params.number }}</span>
+        <span class="contents-thumb">{{ with .Params.img }}{{ partial "pic.html" (dict "src" . "alt" "" "sizes" "80px") }}{{ end }}</span>
+        <span class="contents-main">
+          <span class="contents-title">{{ .Title }}</span>
+          <span class="contents-sub">{{ .Params.subtitle }}</span>
+        </span>
+        <span class="contents-tail">{{ partial "cat-name.html" .Params.category }} · {{ .Params.contributor }} · {{ .Date.Format "Jan 2006" }}</span>
+      </a>
+      {{ with .Params.repo }}<a class="contents-repo" href="{{ . }}" aria-label="Repository — {{ $p.Params.number }}">Repository →</a>{{ end }}
+    </li>
+    {{ end }}
+  </ol>
+</div>

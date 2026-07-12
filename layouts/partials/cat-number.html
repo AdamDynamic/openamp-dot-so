@@ -1,0 +1,5 @@
+{{- /* THE CATALOGUE NUMBER — displayed once prominently per page
+   (HARD_RULES Always 3), in the running head, carrying the
+   view-transition-name that morphs it between listing and entry. */ -}}
+{{- if not .Params.number }}{{ errorf "entry %q is missing required front matter: number" .Path }}{{ end -}}
+<span class="cat-number mono" style="view-transition-name: {{ lower .Params.number }};">{{ .Params.number }}</span>

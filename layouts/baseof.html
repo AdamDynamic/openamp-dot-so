@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+{{ partial "head.html" . }}
+</head>
+{{- /* Entry pages carry their object's ink (front matter `ink`), falling
+       back to the category ink via data-category. The home page keys off
+       the newest entry. Everything else stays ink-on-paper. */ -}}
+{{ $cat := .Params.category }}
+{{ $ink := partial "entry-ink.html" . }}
+{{ $style := "" }}
+{{ with $ink }}{{ $style = partial "ink-vars.html" (dict "ink" .) }}{{ end }}
+{{ if .IsHome }}{{ with index ((where site.RegularPages "Section" "catalogue").ByParam "number").Reverse 0 }}{{ with partial "entry-ink.html" . }}{{ $style = printf "%s --update-ink: %s;" $style . }}{{ end }}{{ end }}{{ end }}
+<body{{ with $cat }} data-category="{{ . }}"{{ end }}{{ with $style }} style="{{ . | safeCSS }}"{{ end }}>
+<a class="skip" href="#content">Skip to content</a>
+{{ partial "masthead.html" . }}
+<main id="content">
+{{ block "main" . }}{{ end }}
+</main>
+{{ partial "footer.html" . }}
+<script>
+(function () {
+  var done = new Set();
+  addEventListener("mouseover", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="/"]');
+    if (!a) return;
+    var h = a.getAttribute("href");
+    if (done.has(h)) return;
+    done.add(h);
+    var l = document.createElement("link");
+    l.rel = "prefetch";
+    l.href = h;
+    document.head.appendChild(l);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,814 @@
+/* ==================================================================
+   OPEN AMPLITUDE SOCIETY — the site's one hand-written stylesheet.
+   Read TEMPLATE.md before extending.
+
+   CONTENTS (in source order; grep the section rules)
+     Tokens .......... inks, derived panel tokens (on *), type, tracking
+     Base ............ reset-lite, links, wrap, duotone recipe
+     Masthead/navbar . band, navmark reveal, skip link
+     Footer / colophon
+     Home ............ hero spread, the shelf (spread grid), post,
+                       society strip, letter
+     Contents page ... /catalogue/ rows (ink spines, thumbs)
+     Entry pages ..... enamel running-head, specimen plate, files rail,
+                       prose, parts box, steps
+     Figures ......... schematics (self-draw), full-bleed photography
+                       (bleed re-registration maths)
+     Ways in / spec / provenance / builds-of-entry
+     Build & builds pages
+     Motion layer (ALL gated), view transitions
+     Responsive ...... 900 / 680 / 560 / 520 / 420
+
+   INVARIANTS (do not break):
+   - Derived tokens live on `*`, never only on :root (per-panel colour
+     depends on it).
+   - Every animation stays inside its reduced-motion AND @supports
+     gates.
+   - border-radius 0, no box-shadows, no gradients (HARD_RULES 16).
+   - One ink per panel; chips/confetti stay dead (repo README).
+   ================================================================== */
+
+/* ------------------------------------------------------------------
+   Open Amplitude Society — the site
+   Paper #FFFFFF. The construction-magazine register, elevated: spread
+   pacing, specimen plates, object-keyed inks, progressive motion.
+   Modern build; the 1970s are the lineage, not the costume.
+   ------------------------------------------------------------------ */
+
+:root {
+  --paper: #FFFFFF;
+  --ink: #1A1816;
+  --muted: #6B6358;
+  --hairline: #C9C4B8;
+
+  --ink-pedal-mod: #C2402A;
+  --ink-synth-module: #2B4C9B;
+  --ink-kit: #2E7D4F;
+  --ink-release: #C98A1B;
+  --ink-event: #6C4A9E;
+  --ink-paper: #25808E;
+
+  /* One accent per view. Ink by default; category inks are the
+     fallback; entries with an object-keyed `ink` override via inline
+     style. --accent-text is the press-darkened variant for small text
+     (contrast-safe); --tint is the duotone photo tint, lightened so the
+     mid-tones survive. */
+  --accent: var(--ink);
+
+  --track-display: 0;
+  --track-caps: 0.1em;
+  --track-caps-wide: 0.12em;
+  --track-caps-tight: 0.08em;
+  --track-num: 0.05em;
+  --track-sc: 0.06em;
+  --size-byline: 0.92rem;
+
+  --font-display: "Jost", sans-serif;
+  --font-body: "Source Serif 4", serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+[data-category="pedal-mod"]    { --accent: var(--ink-pedal-mod); }
+[data-category="synth-module"] { --accent: var(--ink-synth-module); }
+[data-category="kit"]          { --accent: var(--ink-kit); }
+[data-category="release"]      { --accent: var(--ink-release); }
+[data-category="event"]        { --accent: var(--ink-event); }
+[data-category="paper"]        { --accent: var(--ink-paper); }
+
+/* Derived per element, so every ink-carrying panel is internally
+   monochrome: its own text-safe dark, its own graphic dark, its own
+   duotone tint. A page becomes a shelf of single-colour panels.
+
+   COMPAT: color-mix() (Chrome 111+, Safari 16.2+, Firefox 113+) is the
+   engine here. An invalid custom property does not fall back — it
+   unsets — so older browsers get safe literals first and the derived
+   system layers on via @supports. Degradation: accent text renders in
+   ink, photos in a warm neutral duotone; nothing breaks. */
+* {
+  --accent-text: var(--ink);
+  --accent-graphic: var(--ink);
+  --tint: #DAD6CC;
+}
+@supports (color: color-mix(in oklab, red 50%, white)) {
+  * {
+    --accent-text: color-mix(in oklab, var(--accent) 68%, black);
+    --accent-graphic: color-mix(in oklab, var(--accent) 80%, black);
+    --tint: color-mix(in oklab, var(--accent) var(--tint-strength, 30%), white);
+  }
+}
+
+/* The shelf: inside an ink-carrying panel the duotone goes to full
+   strength — highlights print in the object's colour, Penguin/OS-map
+   loud — with a brightness lift so the mid-tones stay open. Neutral
+   pages keep the quiet grey. */
+[data-category] .duotone img { filter: grayscale(1) contrast(1.08) brightness(1.25); }
+
+/* ---- base ------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 106.25%; } /* 17px */
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; border: 0; }
+
+a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.16em; text-decoration-color: #8F8A80; }
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  a { text-decoration-color: color-mix(in srgb, var(--ink) 55%, var(--paper)); }
+}
+a:hover { text-decoration-color: var(--accent-text); }
+
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; }
+
+.mono { font-family: var(--font-mono); }
+
+.wrap { max-width: 1100px; margin-inline: auto; padding-inline: 1.25rem; }
+
+/* ---- masthead ------------------------------------------------------
+   A solid ink band carries the typeset wordmark (the Index treatment,
+   scaled up); beneath it a slim navigation bar that stays stuck to the
+   top of the viewport as the band scrolls away. */
+
+/* THE MASTHEAD (decided): the title plate. Wordmark in ink on paper
+   between Oxford rules — Wireless World grammar; the institution
+   writes in ink. The navbar's 3px sub-rule carries the current
+   update's ink on the homepage only (the spec's "accent sparingly"),
+   handing the eye to the hero's identical ink below. */
+.band {
+  background: var(--paper); color: var(--ink);
+  border-top: 3px solid var(--ink);
+}
+.band::before { content: ""; display: block; height: 1px; background: var(--ink); margin-top: 2px; }
+.band .wrap { padding-block: 1.1rem 1.2rem; }
+
+.band-wordmark {
+  display: block; color: var(--ink); text-decoration: none;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.35rem, 3.4vw, 2.1rem);
+  text-transform: uppercase; letter-spacing: var(--track-num); line-height: 1.04;
+}
+
+.masthead-home .band .wrap { padding-block: 2.4rem 2.2rem; }
+.masthead-home .band-wordmark { font-size: clamp(2.2rem, 6.4vw, 4.6rem); letter-spacing: 0.03em; }
+.band-title { margin: 0; }
+
+.band-strap {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: clamp(1.05rem, 2.35vw, 1.32rem); line-height: 1.35;
+  margin: 1rem 0 0; max-width: 36em; color: var(--ink);
+}
+
+.navbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--paper);
+  border-bottom: 1px solid var(--ink); padding-bottom: 2px;
+}
+.navbar::after { content: ""; display: block; height: 3px; background: var(--update-ink, var(--ink)); }
+
+.navbar-row {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 0.3rem 2rem; padding-block: 0.7rem;
+}
+
+.navmark {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: var(--track-caps); text-decoration: none;
+}
+
+.skip {
+  position: absolute; left: -999px; top: 0; z-index: 100;
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-display); font-size: 0.85rem;
+  padding: 0.6rem 1rem; border: 1px solid var(--ink); text-decoration: none;
+}
+.skip:focus { position: fixed; left: 0.5rem; top: 0.5rem; }
+
+.navbar nav { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; }
+
+.navbar nav a {
+  font-family: var(--font-display); font-weight: 500; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: var(--track-caps); text-decoration: none;
+  padding-bottom: 0.15rem; border-bottom: 2px solid transparent;
+}
+
+.navbar nav a:hover { border-bottom-color: var(--hairline); }
+.navbar nav a[aria-current] { border-bottom-color: var(--accent-text); color: var(--accent-text); }
+
+/* ---- footer ------------------------------------------------------ */
+
+.colophon { margin-top: 5rem; border-top: 1px solid var(--ink); }
+.colophon::before { content: ""; display: block; height: 3px; background: var(--ink); margin-top: 2px; }
+.colophon .wrap { padding-block: 2rem 3rem; }
+.colophon-mark { font-family: var(--font-display); font-weight: 700; font-size: 0.7rem; letter-spacing: var(--track-caps-wide); margin: 0 0 0.8rem; }
+.colophon p { margin: 0.15rem 0; font-size: 0.85rem; color: var(--muted); max-width: 60ch; }
+.colophon-next { letter-spacing: var(--track-caps-tight); text-transform: uppercase; font-size: 0.7rem; margin-top: 0.9rem; }
+
+/* ---- home: the catalogue, newest first ------------------------------
+   The lead story is the most recent entry; the rest of the catalogue
+   reveals itself as you scroll. The structured contents page lives at
+   /catalogue/. */
+
+.hero-eyebrow {
+  font-family: var(--font-display); margin: 0 0 0.9rem; color: var(--accent-text);
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-caps);
+}
+
+.hero-headline { font-size: clamp(1.9rem, 4.4vw, 2.9rem); font-weight: 600; letter-spacing: var(--track-display); }
+.hero-headline a { text-decoration: none; }
+.hero-headline a:hover { text-decoration: underline; text-decoration-thickness: 3px; text-decoration-color: var(--accent); }
+
+.hero-standfirst { font-size: 1.2rem; font-style: italic; color: var(--muted); margin: 0.7rem 0 0; max-width: 30em; line-height: 1.38; }
+
+.hero-byline, .byline, .spread-byline, .build-meta {
+  font-family: "Vollkorn SC", var(--font-body); font-variant-caps: normal;
+  text-transform: none; font-size: var(--size-byline); letter-spacing: var(--track-sc);
+  color: var(--ink);
+}
+.mono, .build-meta .mono { font-variant-caps: normal; }
+.hero-byline { margin: 0.9rem 0 0; }
+.spread-byline { margin: 0.5rem 0 0; }
+
+.hero-excerpt { margin: 1.1rem 0 0; max-width: 54ch; }
+
+.hero-pointer { font-family: var(--font-display); margin: 1.4rem 0 0; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-caps); }
+.hero-pointer a { color: var(--accent-text); text-decoration: none; }
+.hero-pointer a:hover { text-decoration: underline; text-decoration-color: var(--accent-text); }
+
+/* section furniture: display face, not the fixture face */
+
+.feed-head {
+  font-family: var(--font-display);
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-caps-wide);
+  color: var(--muted); margin: 0; padding-block: 1.1rem 0;
+}
+
+.feed-pointer { font-family: var(--font-display); margin: 1rem 0 0; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-caps); }
+.feed-pointer a { text-decoration: none; }
+.feed-pointer a:hover { text-decoration: underline; text-decoration-color: var(--accent-text); }
+
+/* From the Society: members' builds on the front page */
+
+.society { border-top: 1px solid var(--ink); margin-top: 2.6rem; }
+
+.society-grid {
+  list-style: none; margin: 1.6rem 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem 1.6rem;
+}
+.society-grid figure { margin: 0; }
+.society-grid .duotone { border: 1px solid var(--hairline); }
+.society-grid .duotone img { aspect-ratio: 4 / 3; object-fit: cover; }
+.society .feed-pointer { margin: 1.8rem 0 0.4rem; }
+
+.cover-foot { border-top: 1px solid var(--hairline); margin-top: 2.4rem; }
+.cover-foot p { max-width: 62ch; font-size: 1rem; margin: 1.6rem 0 0.4rem; }
+
+
+/* ---- contents page (the catalogue) -------------------------------- */
+
+.contents-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 0.5rem 2rem; padding-top: 2.75rem;
+  border-bottom: 2px solid var(--ink); padding-bottom: 0.9rem;
+}
+
+.contents-range { margin: 0; font-size: 0.7rem; text-transform: uppercase; letter-spacing: var(--track-caps-wide); color: var(--muted); }
+
+.contents { list-style: none; margin: 1.4rem 0 2rem; padding: 0; }
+
+.contents-row {
+  border-left: 4px solid var(--accent); padding-left: 1rem;
+  display: grid; grid-template-columns: 8.5rem 104px minmax(0, 1fr) auto auto;
+  gap: 0.2rem 1.6rem; align-items: baseline;
+  padding-block: 0.85rem; border-bottom: 1px solid var(--hairline);
+}
+
+.contents-link { display: contents; text-decoration: none; }
+.contents-repo {
+  font-family: var(--font-display); font-weight: 600; font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: var(--track-caps);
+  color: var(--accent-text); text-decoration: none; white-space: nowrap;
+}
+.contents-repo:hover { text-decoration: underline; text-decoration-color: var(--accent-text); }
+.contents-link:focus-visible .contents-title { outline: 2px solid var(--accent-text); outline-offset: 3px; }
+/* the thumb centres against the row: images have no text baseline, so
+   baseline alignment plants their bottom edge on the line and they
+   tower upward — align-self: center restores one horizon */
+.contents-thumb { align-self: center; }
+.contents-thumb .duotone img { width: 104px; height: 70px; object-fit: cover; }
+.contents-num { font-weight: 700; font-size: 0.78rem; letter-spacing: var(--track-num); }
+.contents-link:hover .contents-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.16em; }
+
+.contents-title { font-family: var(--font-display); font-weight: 600; font-size: 1.12rem; text-decoration: none; }
+.contents-title:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+.contents-sub { display: block; font-style: italic; color: var(--muted); font-size: 0.9rem; max-width: 48ch; }
+
+.contents-tail { font-family: var(--font-display); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: var(--track-caps); color: var(--muted); white-space: nowrap; }
+
+/* ---- plain pages --------------------------------------------------- */
+
+.page-head { padding-top: 2.75rem; }
+.page-wrap { max-width: 760px; }
+.page-head h1 { font-size: 1.9rem; font-weight: 600; letter-spacing: var(--track-display); }
+
+.intro { margin-top: 0.9rem; }
+.intro p { max-width: 58ch; }
+
+.page .prose { margin-top: 1rem; }
+
+/* ---- entry pages: construction articles ---------------------------- */
+
+/* Running head: the entry wears its own ink at full brightness — the
+   Boss enamel — with label text flipped black/white per the ink's
+   luminance (computed at build time in baseof). */
+.running-head { background: var(--accent); color: var(--on-accent, var(--paper)); }
+.running-head .running-head-row { padding-block: 0.9rem; }
+.running-head-row {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 0.2rem 1.5rem;
+}
+.rh-section { font-family: var(--font-display); font-weight: var(--rh-weight, 600); font-size: 0.78rem; text-transform: uppercase; letter-spacing: var(--rh-track, var(--track-caps)); }
+.cat-number { font-weight: 700; font-size: 0.85rem; letter-spacing: var(--rh-track, var(--track-caps)); }
+
+.entry-head { padding-top: 2.5rem; }
+.entry-head h1 { font-size: clamp(1.9rem, 4.2vw, 2.6rem); font-weight: 600; letter-spacing: var(--track-display); max-width: 24em; }
+
+.standfirst { font-size: 1.22rem; font-style: italic; color: var(--muted); margin: 0.7rem 0 0; max-width: 29em; line-height: 1.38; }
+
+.byline { margin: 1.2rem 0 0; }
+
+/* opening photograph, category tint */
+.entry-lead { margin: 1.9rem 0 0; }
+.entry-lead .duotone { border: 1px solid var(--hairline); }
+.entry-lead .duotone img { aspect-ratio: 21 / 9; object-fit: cover; }
+
+/* article column + spec rail */
+
+.article-cols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 0 3.5rem; margin-top: 2.1rem; }
+.rail { position: sticky; top: 4.6rem; align-self: start; background: var(--paper); z-index: 2; }
+
+.rail-files { border: 1px solid var(--ink); border-top: 4px solid var(--accent); padding: 1.1rem 1.2rem 1.2rem; margin-bottom: 1.4rem; }
+.rail-files h2 {
+  display: inline-block; background: var(--accent-text); color: var(--paper);
+  font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: var(--track-caps-wide);
+  padding: 0.4rem 0.8rem; margin: -1.1rem 0 0.9rem -1.2rem;
+}
+.rail-files h2 .route-no { color: var(--paper); }
+.rail-files .files { font-size: 0.85rem; }
+.rail-files .download-all { display: block; text-align: center; }
+.rail-files .files { margin-bottom: 0.9rem; }
+.rail-files .files li { flex-direction: column; gap: 0.05rem; }
+.rail-files .licence { font-size: 0.78rem; }
+.rail-files .repo-note { font-size: 0.78rem; color: var(--muted); margin: 0.5rem 0 0; }
+.rail-files .prose p { font-size: 0.92rem; max-width: none; }
+
+.entry-builds { margin: 2.6rem 0; }
+.entry-builds h2 { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-caps); border-top: 1px solid var(--hairline); padding-top: 1.1rem; margin-bottom: 1rem; }
+.entry-builds-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.6rem; }
+.entry-builds-grid figure { margin: 0 0 0.6rem; }
+.entry-builds-grid .duotone img { aspect-ratio: 4 / 3; object-fit: cover; }
+.entry-builds-foot { font-size: 0.88rem; color: var(--muted); margin: 1.2rem 0 0; }
+.article-main { grid-column: 1; grid-row: 1; min-width: 0; }
+.rail { grid-column: 2; grid-row: 1; }
+
+/* ---- prose --------------------------------------------------------- */
+
+.prose { font-size: 1rem; }
+.prose p { margin: 0 0 1.1rem; max-width: 62ch; hyphens: auto; }
+
+.prose h2 {
+  font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-caps);
+  border-top: 1px solid var(--hairline); padding-top: 1.1rem; margin: 2.4rem 0 0.9rem;
+}
+
+.prose ul, .prose ol { margin: 0 0 1.1rem; padding-left: 1.4rem; max-width: 62ch; }
+.prose li { margin-bottom: 0.35rem; }
+.prose ol li::marker { font-family: var(--font-mono); font-weight: 700; font-size: 0.85em; color: var(--accent); }
+
+/* Parts-list box: "What you need" reads as the components panel.
+   The heading becomes a solid tab on a ruled box. */
+.entry .prose h2:has(+ ul) {
+  display: inline-block; background: var(--ink); color: var(--paper);
+  border-top: 0; padding: 0.45rem 0.9rem 0.4rem; margin: 2.4rem 0 0;
+  font-weight: 500; letter-spacing: var(--track-caps-wide);
+}
+.entry .prose h2 + ul {
+  border: 1px solid var(--ink); list-style: none;
+  margin-top: 0; padding: 0.55rem 1.3rem 0.6rem; max-width: none;
+  font-size: 0.95rem;
+}
+.entry .prose h2 + ul li { margin: 0; padding: 0.5rem 0; border-bottom: 1px dotted var(--hairline); }
+.entry .prose h2 + ul li:last-child { border-bottom: 0; }
+
+/* The work: numbered steps with big mono numerals. */
+.entry .prose ol { list-style: none; counter-reset: step; padding-left: 0; max-width: 60ch; }
+.entry .prose ol > li {
+  counter-increment: step; position: relative;
+  padding: 0.2rem 0 0.9rem 3.4rem; margin: 0;
+}
+.entry .prose ol > li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute; left: 0; top: -0.085em;
+  font-family: var(--font-mono); font-weight: 700; font-size: 1.55rem; line-height: 1;
+  color: var(--accent-text);
+}
+
+/* ---- figures ------------------------------------------------------- */
+
+.fig { margin: 2.4rem 0; }
+
+.schematic { width: 100%; height: auto; color: var(--ink); }
+.schematic text { font-family: var(--font-mono); font-size: 11px; letter-spacing: var(--track-caps-tight); fill: currentColor; stroke: none; }
+.schematic .acc { stroke: var(--accent-graphic); }
+.schematic text.acc, .schematic .acc text { fill: var(--accent-text); stroke: none; }
+
+.fig-schematic { border: 1px solid var(--hairline); padding: 1.5rem 1.5rem 1rem; }
+
+.duotone { display: block; background: var(--tint); }
+/* height:auto is load-bearing: width:100% alone leaves the HTML height
+   attribute in force and squashes any image without an aspect-ratio
+   rule (aspect-ratio + object-fit still govern where declared) */
+.duotone img { width: 100%; height: auto; filter: grayscale(1) contrast(1.05); mix-blend-mode: multiply; }
+
+/* Contextual photography runs the full width of the page; only the
+   specimen plates sit contained. Captions sit on the text measure.
+   Inside the entry grid the column centre is offset by half the rail,
+   so the bleed is re-registered. */
+.fig-photo { width: 100vw; margin-left: calc(50% - 50vw); }
+.fig-photo .duotone { border-block: 1px solid var(--hairline); }
+.fig-photo .duotone img { aspect-ratio: 21 / 9; object-fit: cover; }
+.fig-photo figcaption { max-width: 62ch; padding-inline: 1.25rem; }
+.page .fig-photo figcaption { margin-left: calc(max((100vw - 760px) / 2, 0px)); margin-right: auto; }
+@media (min-width: 900.02px) {
+  .article-cols:not(.article-solo) .article-main .fig-photo { margin-left: calc(50% - 50vw + 150px + 1.75rem); }
+  .article-cols:not(.article-solo) .article-main .fig-photo figcaption { margin-left: calc(max((100vw - 1100px) / 2, 0px) + 1.25rem); margin-right: auto; padding-inline: 0; }
+}
+
+.fig figcaption {
+  font-family: var(--font-body); font-style: italic;
+  font-size: 0.92rem; color: var(--muted); margin-top: 0.7rem; max-width: 60ch;
+}
+.fig figcaption:has(.fig-no) {
+  font-family: var(--font-mono); font-style: normal;
+  font-size: 0.78rem; letter-spacing: 0.02em;
+}
+.fig-schematic figcaption { border-top: 1px dotted var(--hairline); padding-top: 0.7rem; margin-top: 1.1rem; }
+.fig-no { font-weight: 700; color: var(--accent-text); margin-right: 0.5em; }
+
+/* ---- ways in -------------------------------------------------------- */
+
+.route-no { font-size: 0.7rem; font-weight: 700; letter-spacing: var(--track-caps-tight); text-transform: uppercase; color: var(--accent-text); margin-right: 0.7em; vertical-align: 12%; }
+
+.files { list-style: none; margin: 0 0 1.1rem; padding: 0; }
+.files li {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 1.2rem;
+  padding: 0.5rem 0.1rem; border-bottom: 1px dotted var(--hairline); font-size: 0.78rem;
+}
+.files li:first-child { border-top: 1px dotted var(--hairline); }
+.files a { font-weight: 700; text-decoration: none; }
+.files a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+.file-meta { color: var(--muted); font-size: 0.7rem; }
+
+.download-line { margin: 1.2rem 0 0.9rem; }
+.download-all {
+  display: inline-block; padding: 0.65rem 1.2rem;
+  background: var(--accent-text); border: 1.5px solid var(--accent-text); color: var(--paper);
+  font-family: var(--font-display); font-weight: 500; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: var(--track-caps-wide); text-decoration: none;
+}
+.download-all:hover { background: var(--paper); color: var(--accent-text); }
+
+.licence { font-size: 0.78rem; color: var(--muted); margin: 0.4rem 0 0; }
+
+
+.ways-in.route-quiet { margin: 2.8rem 0; border-top: 1px solid var(--hairline); padding-top: 1.3rem; }
+.rather { font-style: italic; color: var(--muted); font-size: 0.92rem; margin: 0 0 0.9rem; }
+.purchase { margin-bottom: 0.9rem; }
+.purchase h3 { font-weight: 600; font-size: 1.02rem; margin-bottom: 0.25rem; }
+.purchase .route-no { color: var(--muted); }
+.purchase p { margin: 0; font-size: 0.88rem; color: var(--muted); max-width: 56ch; }
+
+/* ---- spec panel / provenance / note --------------------------------- */
+
+.spec-section h2, .provenance h2, .contributor-note h2 {
+  font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-caps-wide);
+}
+
+/* The rail spec panel, boxed like a construction-magazine spec table. */
+.rail .spec-section { border: 1px solid var(--ink); padding: 1.1rem 1.2rem 1.2rem; }
+.rail .spec-section h2 { color: var(--accent-text); border-bottom: 1px solid var(--hairline); padding-bottom: 0.7rem; margin-bottom: 0.4rem; }
+
+.spec { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.spec th { text-align: left; font-weight: 400; color: var(--muted); width: 42%; padding: 0.5rem 0.9rem 0.5rem 0; border-bottom: 1px dotted var(--hairline); vertical-align: baseline; }
+.spec td { padding: 0.5rem 0; border-bottom: 1px dotted var(--hairline); vertical-align: baseline; }
+.spec tr:last-child th, .spec tr:last-child td { border-bottom: 0; }
+
+.provenance, .contributor-note { margin: 2.6rem 0; }
+.provenance h2, .contributor-note h2 { border-top: 1px solid var(--hairline); padding-top: 1.1rem; margin-bottom: 1rem; }
+
+.contributor-note .prose { max-width: 60ch; }
+.attribution { font-family: "Vollkorn SC", var(--font-body); font-size: var(--size-byline); letter-spacing: var(--track-sc); color: var(--ink); margin: 0.9rem 0 0; }
+
+.revisions { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.revisions td { padding: 0.45rem 1.1rem 0.45rem 0; border-bottom: 1px dotted var(--hairline); vertical-align: baseline; }
+.rev-version { font-weight: 700; white-space: nowrap; }
+.rev-date { color: var(--muted); white-space: nowrap; }
+.rev-note { color: var(--ink); }
+
+/* ---- build-it-yourself index ----------------------------------------- */
+
+
+/* ---- builds gallery ---------------------------------------------------
+   Editorial: the lead build runs wide, the rest sit in the grid. */
+
+.builds-page .intro p { max-width: 52ch; }
+
+.builds-grid {
+  list-style: none; margin: 2.2rem 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6rem 1.6rem;
+}
+
+.build-card figure { margin: 0; }
+.build-card .duotone { border: 1px solid var(--hairline); }
+.build-card .duotone img { aspect-ratio: 4 / 3; object-fit: cover; }
+.builds-grid li:first-child { grid-column: span 2; }
+.builds-grid li:first-child .duotone img { aspect-ratio: 2 / 1; }
+.build-meta { margin: 0.78rem 0 0.15rem; }
+.build-meta .mono { font-size: 0.82em; }
+.build-line { font-size: 0.92rem; margin: 0; color: var(--ink); max-width: 44ch; }
+
+/* ---- responsive -------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .article-cols { display: flex; flex-direction: column; }
+  .rail { display: contents; }
+  .rail-files { order: -1; margin-top: 1.6rem; }
+  .article-main { order: 1; }
+  .rail .spec-section { margin-bottom: 0.4rem; }
+  .builds-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 680px) {
+  .contents-row { grid-template-columns: 1fr; gap: 0.15rem; padding-block: 0.95rem; }
+  .contents-tail { white-space: normal; }
+  .entry-head h1 { font-size: 1.75rem; }
+  .standfirst, .hero-standfirst { font-size: 1.12rem; }
+  .society-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .builds-grid { grid-template-columns: 1fr; }
+  .builds-grid li:first-child { grid-column: auto; }
+  .builds-grid li:first-child .duotone img { aspect-ratio: 4 / 3; }
+  .ways-in { padding: 1.1rem 1rem 1.2rem; }
+  .files li { flex-direction: column; gap: 0.1rem; }
+  .fig-schematic { padding: 0.9rem 0.9rem 0.78rem; }
+  .entry .prose ol > li { padding-left: 2.7rem; }
+  .entry .prose ol > li::before { font-size: 1.25rem; top: -0.015em; }
+}
+
+@media (max-width: 420px) {
+  html { font-size: 100%; }
+  .navbar nav { gap: 0.3rem 0.9rem; }
+}
+
+/* ==================================================================
+   ELEVATED LAYER — motion, view transitions, specimen plates
+   Everything below layers onto the base document. All motion is guarded
+   by prefers-reduced-motion and @supports; without support the page
+   degrades to a plain, fast document.
+   ================================================================== */
+
+/* full-bleed guard */
+/* COMPAT: clip (no scroll container) with hidden fallback for
+   Safari < 16 — guards the 100vw full-bleed figures. */
+html { overflow-x: hidden; overflow-x: clip; scroll-padding-top: 4rem; }
+
+/* ---- micro-typography -------------------------------------------- */
+
+body { hanging-punctuation: first allow-end; }
+h1, h2, h3 { text-wrap: balance; }
+.prose p, .spread-excerpt, .hero-excerpt { text-wrap: pretty; }
+.prose { font-variant-numeric: oldstyle-nums; }
+.entry .prose h2 + ul { font-variant-numeric: lining-nums; }
+.spec, .revisions { font-variant-numeric: tabular-nums lining-nums; }
+.fig figcaption { hyphens: manual; }
+
+/* ---- full bleed ---------------------------------------------------- */
+
+.bleed { width: 100vw; margin-left: calc(50% - 50vw); }
+
+/* Specimen plate: the object itself, full colour, handbook register. */
+.plate-specimen { margin: 2.4rem auto 0.4rem; max-width: 56rem; }
+/* reading pages (letters, papers): one CENTRED column — header, photo,
+   prose, spec and provenance share a single centred axis; the column
+   keeps its reading measure and the whole thing recentres, leaving no
+   phantom sidebar space */
+.wrap-solo .entry-head,
+.wrap-solo .plate-specimen { max-width: 66ch; margin-inline: auto; }
+.plate-img { display: block; background: #FFFFFF; }
+.plate-img img { display: block; margin-inline: auto; width: 100%; height: auto; }
+.plate-specimen figcaption {
+  font-family: var(--font-body); font-style: italic;
+  font-size: 0.92rem; color: var(--muted);
+  max-width: 60ch; margin-top: 1rem;
+}
+
+/* ---- hero spread ---------------------------------------------------- */
+
+.hero-spread { border-bottom: 1px solid var(--ink); padding-bottom: 2.8rem; }
+.hero-bleed { margin: 0; }
+.hero-bleed .duotone img { aspect-ratio: 21 / 9; object-fit: cover; }
+
+
+.hero-panel {
+  position: relative;
+  background: var(--paper); border: 1px solid var(--ink);
+  max-width: 46rem; padding: 1.6rem 2rem 1.9rem;
+  margin-top: -5.5rem;
+}
+/* ---- spreads: paced, not fed ---------------------------------------- */
+
+
+.spread-grid {
+  display: grid; grid-template-columns: repeat(12, 1fr);
+  gap: 3.4rem 1.6rem; padding-block: 2rem 1rem;
+}
+.spread { min-width: 0; }
+.spread-half { grid-column: span 6; }
+.spread-wide, .spread-feature, .spread-compact { grid-column: 1 / -1; }
+
+.spread-photo { margin: 0 0 0.9rem; }
+.spread-photo .duotone { border: 1px solid var(--hairline); }
+
+.spread-photo .duotone img { aspect-ratio: 3 / 2; object-fit: cover; }
+
+.spread-meta { font-family: var(--font-display); font-weight: 600; font-size: 0.7rem; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--muted); margin: 0 0 0.4rem; }
+
+.spread-title-sm { font-size: 1.38rem; font-weight: 600; letter-spacing: var(--track-display); }
+.spread-title-sm a, .spread-headline a { text-decoration: none; }
+.spread-title-sm a:hover, .spread-headline a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+
+.spread-sub { font-style: italic; color: var(--muted); margin: 0.35rem 0 0; }
+.spread-headline { font-size: clamp(1.6rem, 3.4vw, 2.4rem); font-weight: 600; letter-spacing: var(--track-display); }
+.spread-excerpt { margin: 0.85rem 0 0; max-width: 58ch; }
+
+.spread-wide {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 1.2rem 3rem; align-items: center;
+  border-block: 1px solid var(--hairline); padding-block: 2.2rem;
+}
+.spread-wide .spread-photo { margin: 0; }
+
+.spread-feature {
+  display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 1.5rem 3rem; align-items: start;
+}
+.spread-feature .spread-photo .duotone img { aspect-ratio: 4 / 3; }
+
+.spread-compact {
+  border-left: 4px solid var(--accent); padding-left: 1rem;
+  display: grid; grid-template-columns: 8.5rem minmax(0, 1fr) auto;
+  gap: 0.2rem 1.6rem; align-items: baseline;
+  border-block: 1px dotted var(--hairline); padding-block: 1.05rem;
+}
+.spread-compact .spread-num a { font-weight: 700; font-size: 0.78rem; letter-spacing: var(--track-num); text-decoration: none; }
+.spread-compact .spread-num a:hover { text-decoration: underline; }
+.spread-compact .spread-title { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; text-decoration: none; }
+.spread-compact .spread-title:hover { text-decoration: underline; }
+.spread-compact .spread-sub { display: block; font-size: 0.88rem; }
+.spread-tail { font-family: var(--font-display); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: var(--track-caps); color: var(--muted); white-space: nowrap; }
+
+/* ---- motion (all progressive) ---------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .fig-photo, .plate-specimen, .spread-photo, .society-grid li {
+      animation: settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    .entry .fig-schematic .schematic :is(path, circle, rect, line) {
+      stroke-dasharray: 1; stroke-dashoffset: 1;
+      animation: draw linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 45%;
+    }
+    .entry .fig-schematic .schematic text,
+    .entry .fig-schematic .schematic circle[fill="currentColor"] {
+      opacity: 0;
+      animation: appear linear both;
+      animation-timeline: view();
+      animation-range: cover 25% cover 50%;
+    }
+  }
+}
+
+@keyframes settle { from { opacity: 0; transform: translateY(12px); } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes appear { to { opacity: 1; } }
+
+/* ---- picking a card from the drawer ---------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-group(*) { animation-duration: 260ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
+/* ---- responsive ------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .spread-half { grid-column: 1 / -1; }
+  .spread-feature, .spread-wide { grid-template-columns: 1fr; }
+  .hero-panel { margin-top: -3rem; }
+}
+
+@media (max-width: 680px) {
+  .fig-schematic { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-schematic:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; }
+  .fig-schematic .schematic { min-width: 480px; }
+  .hero-bleed .duotone img { aspect-ratio: 16 / 9; }
+  .plate-specimen { margin-top: 1.6rem; }
+  .spread-compact { grid-template-columns: 1fr; }
+  .spread-tail { white-space: normal; }
+  .hero-panel { margin-top: -1.6rem; padding: 1.2rem 1.1rem 1.4rem; }
+  .entry-builds-grid { grid-template-columns: 1fr; }
+  .fig-photo .duotone img { aspect-ratio: 16 / 9; }
+}
+
+/* ---- navmark: appears once the band has fully collapsed -------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (timeline-scope: none) {
+    body:has(.masthead-home) .navmark { visibility: hidden; }
+    body { timeline-scope: --band; }
+    .masthead-home .band { view-timeline: --band block; }
+    body:has(.masthead-home) .navmark {
+      animation: navreveal linear both;
+      animation-timeline: --band;
+      animation-range: exit 55% exit 100%;
+    }
+  }
+}
+@keyframes navreveal {
+  from { opacity: 0; visibility: hidden; }
+  to { opacity: 1; visibility: visible; }
+}
+
+@media (max-width: 900px) {
+  .post-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .contents-row { grid-template-columns: 1fr; }
+  .contents-thumb { display: none; }
+}
+
+/* long mono filenames must wrap inside the files list at phone widths */
+.files a { overflow-wrap: anywhere; }
+
+/* Papers read, they don't build: without a rail the article takes a
+   single comfortable column, nothing at the reader's elbow. */
+.article-cols.article-solo { display: block; }
+.article-solo .article-main { max-width: 66ch; margin-inline: auto; }
+.article-solo .prose p, .article-solo .prose ul, .article-solo .prose ol { max-width: none; }
+
+/* ---- visually-hidden (screen readers keep the heading) -------------- */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* ---- the finding aid: entries by category over the flat census ------ */
+.finding-aid { margin: 1.6rem 0 0.4rem; border-top: 1px solid var(--hairline); padding-top: 1.1rem; }
+.finding-aid p { margin: 0.2rem 0; font-size: 0.88rem; }
+.finding-aid .fa-cat { font-family: var(--font-display); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: var(--track-caps); color: var(--muted); margin-right: 0.6em; }
+.finding-aid a { font-size: 0.78rem; font-weight: 700; text-decoration: none; margin-right: 0.35em; }
+.finding-aid a:hover { text-decoration: underline; }
+
+.rail-files .files li span { color: var(--ink); }
+
+@media (max-width: 680px) {
+}
+
+/* ---- build cards are doors, not dead ends ---------------------------
+   The card links to the entry it builds (gallery interest routes into
+   "build first"); the builder is credited in the byline register. */
+.build-link { display: block; text-decoration: none; }
+.build-link:hover .build-meta { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.16em; text-decoration-color: var(--accent-text); }
+.build-link:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; }
+.build-byline {
+  font-family: "Vollkorn SC", var(--font-body);
+  font-size: var(--size-byline); letter-spacing: var(--track-sc);
+  color: var(--ink); margin: 0.15rem 0 0.1rem;
+}
+
+/* homepage photographs are click targets for their entries */
+.photo-link { display: block; }

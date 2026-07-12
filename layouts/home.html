@@ -1,0 +1,139 @@
+{{ define "main" }}
+{{ $entries := ((where site.RegularPages "Section" "catalogue").ByParam "number").Reverse }}
+{{ $hero := index $entries 0 }}
+{{ $rest := after 1 $entries }}
+
+{{- /* Home: the catalogue newest-first, paced like spreads. Scale
+      is editorial — each entry's `cover` front matter (feature | wide |
+      half | compact) decides its treatment; the newest entry is the
+      lead spread. */ -}}
+
+{{ with $hero }}
+<section class="hero-spread" data-category="{{ .Params.category }}"{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}>
+  {{ with .Params.img }}
+  <figure class="hero-bleed bleed">
+    {{- /* photo links are pointer conveniences: the headline is the
+        canonical link, so these stay out of the tab order and the
+        accessibility tree */ -}}
+    <a class="photo-link" href="{{ $hero.RelPermalink }}" tabindex="-1" aria-hidden="true">
+      {{ partial "pic.html" (dict "src" . "alt" "" "sizes" "100vw" "eager" true "vtname" (printf "img-%s" (lower $hero.Params.number))) }}
+    </a>
+  </figure>
+  {{ end }}
+  <div class="wrap">
+    <div class="hero-panel">
+      <p class="hero-eyebrow">From the {{ .Date.Format "January 2006" }} update · <span class="mono" style="view-transition-name: {{ lower .Params.number }};">{{ .Params.number }}</span> · {{ partial "cat-name.html" .Params.category }}</p>
+      <h2 class="hero-headline"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      <p class="hero-standfirst">{{ .Params.subtitle }}</p>
+      <p class="hero-byline">{{ .Params.byline | default (printf "Contributed by %s" .Params.contributor) }}</p>
+      <p class="hero-excerpt">{{ .Params.summary | default (.Summary | plainify | truncate 230) }}</p>
+      <p class="hero-pointer">Catalogue entry <a href="{{ .RelPermalink }}">{{ .Params.number }} →</a></p>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+<section class="spreads">
+  <div class="wrap">
+    <h2 class="feed-head">The catalogue, newest first</h2>
+    <div class="spread-grid">
+      {{ range $rest }}
+      {{ $kind := .Params.cover | default "half" }}
+      {{ $cat := partial "cat-name.html" .Params.category }}
+
+      {{ if eq $kind "compact" }}
+      <article class="spread spread-compact" data-category="{{ .Params.category }}"{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}>
+        <span class="spread-num mono" style="view-transition-name: {{ lower .Params.number }};"><a href="{{ .RelPermalink }}">{{ .Params.number }}</a></span>
+        <span class="spread-compact-main">
+          <a class="spread-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          <span class="spread-sub">{{ .Params.subtitle }}</span>
+        </span>
+        <span class="spread-tail">{{ $cat }} · {{ .Date.Format "Jan 2006" }}</span>
+      </article>
+
+      {{ else if eq $kind "feature" }}
+      <article class="spread spread-feature" data-category="{{ .Params.category }}"{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}>
+        <div class="spread-feature-media">
+          <figure class="spread-photo">
+            <a class="photo-link" href="{{ .RelPermalink }}" tabindex="-1" aria-hidden="true">
+            {{ partial "pic.html" (dict "src" .Params.img "alt" "" "sizes" "(min-width: 900px) 640px, 100vw" "vtname" (printf "img-%s" (lower .Params.number))) }}
+          </a>
+          </figure>
+        </div>
+        <div class="spread-text">
+          <p class="spread-meta"><span class="mono" style="view-transition-name: {{ lower .Params.number }};">{{ .Params.number }}</span> · {{ $cat }}</p>
+          <h3 class="spread-headline"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          <p class="spread-sub">{{ .Params.subtitle }}</p>
+          <p class="spread-byline">{{ .Params.byline | default (printf "Contributed by %s" .Params.contributor) }}</p>
+          <p class="spread-excerpt">{{ .Params.summary | default (.Summary | plainify | truncate 220) }}</p>
+          <p class="feed-pointer">Catalogue entry <a href="{{ .RelPermalink }}">{{ .Params.number }} →</a></p>
+        </div>
+      </article>
+
+      {{ else if eq $kind "wide" }}
+      <article class="spread spread-wide" data-category="{{ .Params.category }}"{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}>
+        <figure class="spread-photo">
+          <a class="photo-link" href="{{ .RelPermalink }}" tabindex="-1" aria-hidden="true">
+            {{ partial "pic.html" (dict "src" .Params.img "alt" "" "sizes" "(min-width: 900px) 440px, 100vw" "vtname" (printf "img-%s" (lower .Params.number))) }}
+          </a>
+        </figure>
+        <div class="spread-text">
+          <p class="spread-meta"><span class="mono" style="view-transition-name: {{ lower .Params.number }};">{{ .Params.number }}</span> · {{ $cat }}</p>
+          <h3 class="spread-headline"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          <p class="spread-sub">{{ .Params.subtitle }}</p>
+          <p class="spread-byline">{{ .Params.byline | default (printf "Contributed by %s" .Params.contributor) }}</p>
+          <p class="spread-excerpt">{{ .Params.summary | default (.Summary | plainify | truncate 200) }}</p>
+          <p class="feed-pointer">Catalogue entry <a href="{{ .RelPermalink }}">{{ .Params.number }} →</a></p>
+        </div>
+      </article>
+
+      {{ else }}
+      <article class="spread spread-half" data-category="{{ .Params.category }}"{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}>
+        <figure class="spread-photo">
+          <a class="photo-link" href="{{ .RelPermalink }}" tabindex="-1" aria-hidden="true">
+            {{ partial "pic.html" (dict "src" .Params.img "alt" "" "sizes" "(min-width: 900px) 520px, 100vw" "vtname" (printf "img-%s" (lower .Params.number))) }}
+          </a>
+        </figure>
+        <p class="spread-meta"><span class="mono" style="view-transition-name: {{ lower .Params.number }};">{{ .Params.number }}</span> · {{ $cat }}</p>
+        <h3 class="spread-title-sm"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+        <p class="spread-sub">{{ .Params.subtitle }}</p>
+      </article>
+      {{ end }}
+      {{ end }}
+    </div>
+  </div>
+</section>
+
+<section class="society">
+  <div class="wrap">
+    <h2 class="feed-head">Members’ builds</h2>
+    <ul class="society-grid">
+      {{ range first 3 hugo.Data.builds.build }}
+      {{ $e := site.GetPage (printf "/catalogue/%s" (lower .entry)) }}
+      <li data-category="{{ .category }}"{{ with $e }}{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}{{ end }}>
+        {{ if $e }}
+        <a class="build-link" href="{{ $e.RelPermalink }}">
+          <figure>
+            {{ partial "pic.html" (dict "src" .img "alt" "" "sizes" "(min-width: 900px) 360px, 100vw") }}
+          </figure>
+          <p class="build-meta"><span class="mono">{{ .entry }}</span> · {{ $e.Title }}</p>
+        </a>
+        {{ else }}
+        <figure>
+          {{ partial "pic.html" (dict "src" .img "alt" (printf "%s built by %s" .entry .builder) "sizes" "(min-width: 900px) 360px, 100vw") }}
+        </figure>
+        <p class="build-meta"><span class="mono">{{ .entry }}</span></p>
+        {{ end }}
+        <p class="build-byline">Built by {{ .builder }}</p>
+        <p class="build-line">{{ .line }}</p>
+      </li>
+      {{ end }}
+    </ul>
+    <p class="feed-pointer"><a href="{{ "/builds/" | relURL }}">All members' builds →</a></p>
+  </div>
+</section>
+
+<div class="wrap cover-foot">
+  {{ .Content }}
+</div>
+{{ end }}

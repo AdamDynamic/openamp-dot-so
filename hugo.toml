@@ -1,4 +1,24 @@
-baseURL = 'https://www.openamp.so/'
-languageCode = 'en-us'
-title = 'The Open Amplitude Society'
-theme = 'ananke'
+baseURL = "/"
+locale = "en-GB"
+title = "Open Amplitude Society"
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+
+[params]
+strapline = "An open catalogue of music hardware you can build yourself."
+next_update = "October 2026"
+
+[menus]
+[[menus.main]]
+name = "Catalogue"
+pageRef = "/catalogue"
+weight = 10
+
+[[menus.main]]
+name = "Members' builds"
+pageRef = "/builds"
+weight = 30
+
+[[menus.main]]
+name = "About"
+pageRef = "/about"
+weight = 40

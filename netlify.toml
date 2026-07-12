@@ -1,0 +1,33 @@
+# Netlify build config for the Open Amplitude Society site. This file ships
+# at the root of the published GitHub repo (the site IS the repo root there),
+# so there is no `base`. Publishing is driven from the dev repo's ./publish.sh
+# — see that repo's README "Publishing", and the demo → production checklist.
+
+[build]
+  command = "hugo --gc --minify"
+  publish = "public"
+
+[build.environment]
+  # Matches the version the sites were built and tested with; pinned so
+  # builds stay reproducible. Bump deliberately, testing locally first.
+  HUGO_VERSION = "0.163.3"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # DEMO PHASE ONLY — the deploy carries AI-generated placeholder
+    # imagery (HARD_RULES 12), so it must not be indexed. Remove this
+    # header at real launch (README "Launch checklist").
+    X-Robots-Tag = "noindex, nofollow"
+
+    # Permanent baseline.
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    # Deliberately moderate: the per-panel ink system lives in `style`
+    # attributes (style-src 'unsafe-inline') and a small hover-prefetch
+    # helper is an inline <script> (script-src 'unsafe-inline'). The Google
+    # Fonts sources go when the fonts are self-hosted; to drop 'unsafe-inline'
+    # for scripts, first move that prefetch helper (baseof.html) to an
+    # external fingerprinted file — see README "Launch checklist".
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"

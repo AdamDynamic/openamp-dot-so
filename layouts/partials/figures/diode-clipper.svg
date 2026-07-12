@@ -1,0 +1,78 @@
+<svg class="schematic" viewBox="0 0 640 360" role="img" aria-label="Schematic: three switchable diode clipping pairs between the signal path and ground" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- signal path -->
+  <path pathLength="1" d="M40 70 H598"/>
+  <path pathLength="1" d="M590 65 L598 70 L590 75"/>
+  <circle pathLength="1" cx="320" cy="70" r="3.5" fill="currentColor" stroke="none"/>
+  <text x="40" y="50">FROM GAIN STAGE</text>
+  <text x="598" y="50" text-anchor="end">TO TONE / LEVEL</text>
+
+  <!-- rotary switch, arm on the germanium position -->
+  <path pathLength="1" d="M320 70 V108"/>
+  <circle pathLength="1" cx="320" cy="112" r="3.5" fill="currentColor" stroke="none"/>
+  <path pathLength="1" class="acc" d="M320 116 V148"/>
+  <text x="344" y="118">SW1 · ROTARY</text>
+  <circle pathLength="1" cx="240" cy="156" r="4"/>
+  <circle pathLength="1" class="acc" cx="320" cy="156" r="4"/>
+  <circle pathLength="1" cx="400" cy="156" r="4"/>
+
+  <!-- branch 1: silicon, x=240 -->
+  <path pathLength="1" d="M240 160 V185"/>
+  <path pathLength="1" d="M226 185 H254"/>
+  <path pathLength="1" d="M226 185 V195"/>
+  <path pathLength="1" d="M218 195 L234 195 L226 213 Z"/>
+  <path pathLength="1" d="M218 213 H234"/>
+  <path pathLength="1" d="M226 213 V245"/>
+  <path pathLength="1" d="M254 185 V213"/>
+  <path pathLength="1" d="M246 213 H262"/>
+  <path pathLength="1" d="M246 231 L262 231 L254 213 Z"/>
+  <path pathLength="1" d="M254 231 V245"/>
+  <path pathLength="1" d="M226 245 H254"/>
+  <path pathLength="1" d="M240 245 V270"/>
+
+  <!-- branch 2: germanium, x=320 (selected) -->
+  <g class="acc">
+    <path pathLength="1" d="M320 160 V185"/>
+    <path pathLength="1" d="M306 185 H334"/>
+    <path pathLength="1" d="M306 185 V195"/>
+    <path pathLength="1" d="M298 195 L314 195 L306 213 Z"/>
+    <path pathLength="1" d="M298 213 H314"/>
+    <path pathLength="1" d="M306 213 V245"/>
+    <path pathLength="1" d="M334 185 V213"/>
+    <path pathLength="1" d="M326 213 H342"/>
+    <path pathLength="1" d="M326 231 L342 231 L334 213 Z"/>
+    <path pathLength="1" d="M334 231 V245"/>
+    <path pathLength="1" d="M306 245 H334"/>
+    <path pathLength="1" d="M320 245 V270"/>
+  </g>
+
+  <!-- branch 3: LED, x=400 -->
+  <path pathLength="1" d="M400 160 V185"/>
+  <path pathLength="1" d="M386 185 H414"/>
+  <path pathLength="1" d="M386 185 V195"/>
+  <path pathLength="1" d="M378 195 L394 195 L386 213 Z"/>
+  <path pathLength="1" d="M378 213 H394"/>
+  <path pathLength="1" d="M386 213 V245"/>
+  <path pathLength="1" d="M414 185 V213"/>
+  <path pathLength="1" d="M406 213 H422"/>
+  <path pathLength="1" d="M406 231 L422 231 L414 213 Z"/>
+  <path pathLength="1" d="M414 231 V245"/>
+  <path pathLength="1" d="M386 245 H414"/>
+  <path pathLength="1" d="M400 245 V270"/>
+  <!-- emission arrows -->
+  <path pathLength="1" d="M376 202 L364 192"/>
+  <path pathLength="1" d="M364 192 L370 192 M364 192 L364 198"/>
+  <path pathLength="1" d="M374 212 L362 202"/>
+  <path pathLength="1" d="M362 202 L368 202 M362 202 L362 208"/>
+
+  <!-- ground -->
+  <path pathLength="1" d="M240 270 H400"/>
+  <path pathLength="1" d="M320 270 V292"/>
+  <path pathLength="1" d="M302 292 H338"/>
+  <path pathLength="1" d="M308 299 H332"/>
+  <path pathLength="1" d="M314 306 H326"/>
+
+  <!-- branch labels -->
+  <text x="240" y="332" text-anchor="middle">SI · 1N4148</text>
+  <text class="acc" x="320" y="332" text-anchor="middle">GE · D9E</text>
+  <text x="400" y="332" text-anchor="middle">LED · 3 MM RED</text>
+</svg>

@@ -1,0 +1,10 @@
+{{- /* Shortcode: schematic — name, number, caption.
+   Usage in entry markdown: schematic name="wasp-panel" number="01.2"
+   caption="..." (inside the usual shortcode angle-bracket delimiters).
+   Renders partials/figures/<name>.svg in a hairline FIG box. Figures
+   are ILLUSTRATIVE, not build references (client decision) — the real
+   schematics ship as entry files. */ -}}
+<figure class="fig fig-schematic" tabindex="0" role="group" aria-label="Figure {{ .Get "number" }}: {{ .Get "caption" }}">
+  {{ partial (printf "figures/%s.svg" (.Get "name")) . }}
+  <figcaption><span class="fig-no">FIG. {{ .Get "number" }}</span> {{ .Get "caption" }}</figcaption>
+</figure>

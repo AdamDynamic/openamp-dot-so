@@ -1,0 +1,20 @@
+{{- /* PROVENANCE — the revision ledger from [[revisions]]. Credit
+   members whose builds/letters changed the files ("…after Jo M.'s
+   build"): this table is where community becomes verifiable. Nothing
+   is ever deleted from it. */ -}}
+{{ with .Params.revisions }}
+<section class="provenance">
+  <h2>Provenance</h2>
+  <table class="revisions mono">
+    <tbody>
+      {{ range . }}
+      <tr>
+        <td class="rev-version">{{ .version }}</td>
+        <td class="rev-date">{{ dateFormat "2 Jan 2006" .date }}</td>
+        <td class="rev-note">{{ .note }}</td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</section>
+{{ end }}

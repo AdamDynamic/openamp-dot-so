@@ -1,0 +1,32 @@
+{{- /* THE CONTENTS PAGE. Dense numbered rows via
+   partials/catalogue-table.html; each row is a single-colour panel
+   (ink spine + tinted thumb). Intro copy comes from
+   content/catalogue/_index.md. */ -}}
+{{ define "main" }}
+{{ $entries := (where site.RegularPages "Section" "catalogue").ByParam "number" }}
+<article class="section-head">
+  <div class="wrap contents-head">
+    <h1 class="visually-hidden">{{ .Title }}</h1>
+    {{ with $entries }}
+    <p class="contents-range mono">Entries {{ (index . 0).Params.number }} – {{ (index . (sub (len .) 1)).Params.number }}</p>
+    {{ end }}
+  </div>
+  <div class="wrap">
+    <div class="prose intro">{{ .Content }}</div>
+    {{- /* The finding aid: one line per category, numbers linked — C's
+         findability laid over D's flat chronological census below.
+         Category order is editorial (hardcoded), as in a real index. */ -}}
+    <nav class="finding-aid" aria-label="Entries by category">
+      {{ range slice "pedal-mod" "synth-module" "kit" "release" "event" "paper" }}
+      {{ $slug := . }}
+      {{ $in := where $entries "Params.category" $slug }}
+      {{ with $in }}
+      <p><span class="fa-cat">{{ (index hugo.Data.categories $slug).plural }}</span>
+        {{ range . }}<a class="mono" href="{{ .RelPermalink }}">{{ replace .Params.number "OPAMP-" "" }}</a> {{ end }}</p>
+      {{ end }}
+      {{ end }}
+    </nav>
+  </div>
+</article>
+{{ partial "catalogue-table.html" . }}
+{{ end }}

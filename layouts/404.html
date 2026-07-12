@@ -1,0 +1,14 @@
+{{- /* 404 — one dry line, a route back to the catalogue, no tricks. */ -}}
+{{ define "main" }}
+<article class="page">
+  <div class="wrap page-wrap">
+    <header class="page-head">
+      <h1>No such page</h1>
+    </header>
+    <div class="prose">
+      <p>Nothing is listed at this address, and nothing ever was. The
+      catalogue itself is permanent — <a href="{{ "/catalogue/" | relURL }}">start there</a>.</p>
+    </div>
+  </div>
+</article>
+{{ end }}

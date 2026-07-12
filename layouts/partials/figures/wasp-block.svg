@@ -1,0 +1,45 @@
+<svg class="schematic" viewBox="0 0 640 260" role="img" aria-label="Block diagram: input buffer, CMOS filter core, output buffer, with resonance feedback and cutoff CV" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- in / out -->
+  <circle pathLength="1" cx="36" cy="90" r="7"/>
+  <text x="36" y="120" text-anchor="middle">IN</text>
+  <circle pathLength="1" cx="592" cy="90" r="7"/>
+  <text x="592" y="120" text-anchor="middle">OUT</text>
+
+  <!-- blocks -->
+  <rect pathLength="1" x="70" y="65" width="110" height="50"/>
+  <text x="125" y="86" text-anchor="middle">INPUT</text>
+  <text x="125" y="102" text-anchor="middle">BUFFER</text>
+
+  <g class="acc">
+    <rect pathLength="1" x="220" y="65" width="150" height="50"/>
+    <text x="295" y="86" text-anchor="middle">CMOS FILTER</text>
+    <text x="295" y="102" text-anchor="middle">4069UB ×2</text>
+  </g>
+
+  <rect pathLength="1" x="410" y="65" width="110" height="50"/>
+  <text x="465" y="86" text-anchor="middle">OUT</text>
+  <text x="465" y="102" text-anchor="middle">BUFFER</text>
+
+  <!-- signal flow -->
+  <path pathLength="1" d="M43 90 H62"/>
+  <path pathLength="1" d="M56 85 L64 90 L56 95"/>
+  <path pathLength="1" d="M180 90 H212"/>
+  <path pathLength="1" d="M206 85 L214 90 L206 95"/>
+  <path pathLength="1" d="M370 90 H402"/>
+  <path pathLength="1" d="M396 85 L404 90 L396 95"/>
+  <path pathLength="1" d="M520 90 H577"/>
+  <path pathLength="1" d="M571 85 L579 90 L571 95"/>
+
+  <!-- resonance feedback -->
+  <circle pathLength="1" cx="385" cy="90" r="3.5" fill="currentColor" stroke="none"/>
+  <path pathLength="1" d="M385 90 V32 H240 V58"/>
+  <path pathLength="1" d="M235 52 L240 60 L245 52"/>
+  <text x="312" y="24" text-anchor="middle">RESONANCE</text>
+
+  <!-- cutoff CV -->
+  <rect pathLength="1" x="235" y="180" width="120" height="44"/>
+  <text x="295" y="199" text-anchor="middle">CUTOFF CV</text>
+  <text x="295" y="215" text-anchor="middle">SUM ×2</text>
+  <path pathLength="1" d="M295 180 V122"/>
+  <path pathLength="1" d="M290 128 L295 120 L300 128"/>
+</svg>

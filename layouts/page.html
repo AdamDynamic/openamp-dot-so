@@ -1,0 +1,15 @@
+{{- /* PLAIN PAGE (About and any standalone content/*.md without a
+   custom layout). Single comfortable column; prose styles do the
+   work. */ -}}
+{{ define "main" }}
+<article class="page">
+  <div class="wrap page-wrap">
+    <header class="page-head">
+      <h1>{{ .Title }}</h1>
+    </header>
+    <div class="prose">
+      {{ .Content }}
+    </div>
+  </div>
+</article>
+{{ end }}

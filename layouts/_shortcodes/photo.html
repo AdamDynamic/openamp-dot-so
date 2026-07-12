@@ -1,0 +1,7 @@
+{{- /* alt is optional: when the caption carries the meaning, the image
+      is decorative-adjacent and alt stays empty rather than duplicating
+      the caption for screen readers. */ -}}
+<figure class="fig fig-photo">
+  {{ partial "pic.html" (dict "src" (.Get "src") "alt" (.Get "alt" | default "") "sizes" "100vw") }}
+  <figcaption>{{ with .Get "number" }}<span class="fig-no">FIG. {{ . }}</span> {{ end }}{{ .Get "caption" }}</figcaption>
+</figure>

@@ -1,0 +1,15 @@
+{{- /* COLOPHON — identical on every page. Carries the covenant
+   ("if you're reading, you're in") exactly once site-wide, the
+   correspondence address, and the next-update line. No social links,
+   ever (HARD_RULES Never 1). */ -}}
+<footer class="colophon">
+  <div class="wrap">
+    <p class="colophon-mark">OPEN AMPLITUDE SOCIETY</p>
+    <p>An open catalogue of music hardware you can build. Designs and documentation
+    CC BY-NC-SA 4.0, free for non-commercial use.</p>
+    <p>The Society is self-selecting: if you're reading, you're in. Write to the
+    correspondent — post@opamp.so.</p>
+    <p>Catalogue numbers are permanent; nothing is retired.</p>
+    {{ with site.Params.next_update }}<p class="colophon-next mono">Next update: {{ . }}</p>{{ end }}
+  </div>
+</footer>

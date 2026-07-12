@@ -1,0 +1,31 @@
+{{- /* The ink engine. Given an ink hex, emits the CSS custom properties
+     for a self-consistent panel:
+       --accent          the ink itself
+       --on-accent       label colour on the enamel — chosen by computing
+                         real WCAG contrast for both candidates and taking
+                         the winner; the build FAILS if neither reaches
+                         4.5:1 (an ink signed off without a proof)
+       --tint-strength   duotone strength — full for bright inks, eased
+                         for dark ones so photos keep internal range
+       --rh-weight/track reversed white type drops half a weight and
+                         opens its tracking (print practice)
+     Usage: style="{{ partial "ink-vars.html" (dict "ink" $ink) | safeCSS }}"
+     (safeCSS is REQUIRED — without it Go's autoescaper emits ZgotmplZ). */ -}}
+{{- $hex := strings.TrimPrefix "#" .ink -}}
+{{- if ne (len $hex) 6 }}{{ errorf "ink %q must be a 6-digit hex colour (e.g. #C25E1F)" .ink }}{{ end -}}
+{{- $lin := dict -}}
+{{- range $i, $ch := slice 0 2 4 -}}
+{{- $c := div (float (int (printf "0x%s" (substr $hex $ch 2)))) 255.0 -}}
+{{- $l := 0.0 -}}
+{{- if le $c 0.04045 }}{{ $l = div $c 12.92 }}{{ else }}{{ $l = math.Pow (div (add $c 0.055) 1.055) 2.4 }}{{ end -}}
+{{- $lin = merge $lin (dict (printf "c%d" $i) $l) -}}
+{{- end -}}
+{{- $L := add (add (mul 0.2126 (index $lin "c0")) (mul 0.7152 (index $lin "c1"))) (mul 0.0722 (index $lin "c2")) -}}
+{{- $rWhite := div 1.05 (add $L 0.05) -}}
+{{- $rInk := div (add $L 0.05) 0.0604 -}}{{- /* vs #1A1816, L≈0.0104 */ -}}
+{{- $onink := "#1A1816" -}}{{- $best := $rInk -}}
+{{- if gt $rWhite $rInk }}{{ $onink = "#FFFFFF" }}{{ $best = $rWhite }}{{ end -}}
+{{- if lt $best 4.5 }}{{ errorf "ink %s fails the enamel proof: best label contrast %.2f:1 (< 4.5). Choose a lighter or darker ink." .ink $best }}{{ end -}}
+{{- $strength := "100%" -}}
+{{- if lt $L 0.2 }}{{ $strength = "80%" }}{{ else if lt $L 0.3 }}{{ $strength = "90%" }}{{ end -}}
+--accent: {{ .ink }}; --on-accent: {{ $onink }}; --tint-strength: {{ $strength }};{{ if eq $onink "#FFFFFF" }} --rh-weight: 500; --rh-track: var(--track-caps-wide);{{ end -}}

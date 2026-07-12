@@ -1,0 +1,28 @@
+{{- /* The band and the nav bar are siblings, not nested: position:sticky
+      can't escape its parent, so the bar must not live inside the same
+      element as the band it outlasts. The band appears on the front
+      page only; the bar's wordmark reveals once the band has fully
+      collapsed. */ -}}
+{{ if .IsHome }}
+<div class="masthead masthead-home">
+  <div class="band">
+    <div class="wrap">
+      <h1 class="band-title"><a class="band-wordmark" href="{{ "/" | relURL }}">Open Amplitude Society</a></h1>
+      <p class="band-strap">An open catalogue of music hardware you can build yourself.</p>
+    </div>
+  </div>
+</div>
+{{ end }}
+<header class="navbar">
+  <div class="wrap navbar-row">
+    <a class="navmark" href="{{ "/" | relURL }}">Open Amplitude Society</a>
+    <nav aria-label="Main">
+      {{ $cur := . }}
+      {{ range site.Menus.main }}
+      {{ $exact := $cur.IsMenuCurrent "main" . }}
+      {{ $ancestor := $cur.HasMenuCurrent "main" . }}
+      <a href="{{ .URL | relURL }}"{{ if $exact }} aria-current="page"{{ else if $ancestor }} aria-current="true"{{ end }}>{{ .Name }}</a>
+      {{ end }}
+    </nav>
+  </div>
+</header>

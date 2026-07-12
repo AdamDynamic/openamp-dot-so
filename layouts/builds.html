@@ -1,0 +1,38 @@
+{{- /* MEMBERS' BUILDS GALLERY (content/builds.md, layout: builds).
+   Curated cards from data/builds.toml; each card is a single-colour
+   panel in its entry's ink (looked up via site.GetPage). Editorial,
+   not a feed: no votes, no comments (HARD_RULES Never 5). */ -}}
+{{ define "main" }}
+<article class="page builds-page">
+  <div class="wrap">
+    <header class="page-head">
+      <h1>{{ .Title }}</h1>
+    </header>
+    <div class="prose intro">
+      {{ .Content }}
+    </div>
+    <ul class="builds-grid">
+      {{ range hugo.Data.builds.build }}
+      {{ $e := site.GetPage (printf "/catalogue/%s" (lower .entry)) }}
+      <li class="build-card" data-category="{{ .category }}"{{ with $e }}{{ with partial "entry-ink.html" . }} style="{{ partial "ink-vars.html" (dict "ink" .) | safeCSS }}"{{ end }}{{ end }}>
+        {{ if $e }}
+        <a class="build-link" href="{{ $e.RelPermalink }}">
+          <figure>
+            {{ partial "pic.html" (dict "src" .img "alt" "" "sizes" "(min-width: 900px) 360px, 100vw") }}
+          </figure>
+          <p class="build-meta"><span class="mono">{{ .entry }}</span> · {{ $e.Title }}</p>
+        </a>
+        {{ else }}
+        <figure>
+          {{ partial "pic.html" (dict "src" .img "alt" (printf "%s built by %s" .entry .builder) "sizes" "(min-width: 900px) 360px, 100vw") }}
+        </figure>
+        <p class="build-meta"><span class="mono">{{ .entry }}</span></p>
+        {{ end }}
+        <p class="build-byline">Built by {{ .builder }}</p>
+        <p class="build-line">{{ .line }}</p>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+</article>
+{{ end }}

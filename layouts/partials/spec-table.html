@@ -1,0 +1,16 @@
+{{- /* SPEC TABLE — mono label/value rows with dotted hairlines
+   (DESIGN_SPEC §6). The catalogue number is prepended as the first row;
+   entry rows come from [[spec]] front matter. */ -}}
+{{ with .Params.spec }}
+<section class="spec-section">
+  <h2>Specification</h2>
+  <table class="spec mono">
+    <tbody>
+      <tr><th scope="row">Catalogue no.</th><td>{{ $.Params.number }}</td></tr>
+      {{ range . }}
+      <tr><th scope="row">{{ .label }}</th><td>{{ .value }}</td></tr>
+      {{ end }}
+    </tbody>
+  </table>
+</section>
+{{ end }}

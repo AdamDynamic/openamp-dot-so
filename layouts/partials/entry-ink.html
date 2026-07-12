@@ -1,0 +1,9 @@
+{{- /* Resolves a page's working ink: its own object-keyed `ink`, else
+     its category's ink from data/categories.toml. Every colour path
+     resolves through here so the ink engine can proof ALL of them —
+     including category fallbacks. Pass the page (.). Returns hex. */ -}}
+{{- if .Params.ink -}}
+{{- .Params.ink -}}
+{{- else -}}
+{{- with index hugo.Data.categories (.Params.category | default "") }}{{ .ink }}{{ end -}}
+{{- end -}}

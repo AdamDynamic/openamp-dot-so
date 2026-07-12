@@ -1,0 +1,6 @@
+{{- /* Category display name with a build-time guard: a typo'd or
+     missing category slug fails the build with a useful message
+     instead of rendering blank furniture. Pass the slug (string). */ -}}
+{{- $c := index hugo.Data.categories (. | default "") -}}
+{{- if not $c }}{{ errorf "unknown category slug %q — must be a key in data/categories.toml" . }}{{ end -}}
+{{- $c.name -}}

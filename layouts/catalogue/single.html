@@ -1,0 +1,70 @@
+{{- /* THE ENTRY PAGE — the template that matters most.
+   Contract: enamel running-head (ink from body, set in baseof via the
+   ink engine) → title/standfirst/byline → full-colour specimen plate
+   (plate-* images; owner-credited plate_note) → files rail (Route 01,
+   pinned; auto-absent for reading-only entries, which collapse to a
+   single 66ch column) → prose → spec (number prepended) → contributor's
+   note → quiet purchase routes → builds of this entry → provenance.
+   Extend by adding partials around these; keep files above prices
+   (HARD_RULES Never 18). */ -}}
+{{ define "main" }}
+<div class="running-head">
+  <div class="wrap running-head-row">
+    <span class="rh-section">{{ partial "cat-name.html" .Params.category }}</span>
+    {{ partial "cat-number.html" . }}
+  </div>
+</div>
+<article class="entry">
+  {{ $hasRail := or .Params.repo .Params.copy_note }}
+  <div class="wrap{{ if not $hasRail }} wrap-solo{{ end }}">
+    <header class="entry-head">
+      <h1>{{ .Title }}</h1>
+      <p class="standfirst">{{ .Params.subtitle }}</p>
+      <p class="byline">{{ .Params.byline | default (printf "Contributed by %s" .Params.contributor) }} · First listed {{ .Date.Format "January 2006" }}{{ with .Params.skill }} · {{ . }}{{ end }}{{ with .Params.build_time }} · {{ . }}{{ end }}</p>
+    </header>
+    {{ with .Params.img }}
+    <figure class="plate-specimen">
+      {{ partial "pic.html" (dict "src" . "alt" $.Params.img_alt "sizes" "(min-width: 900px) 900px, 100vw" "plain" (hasPrefix . "img/plate-") "eager" true "vtname" (printf "img-%s" (lower $.Params.number))) }}
+      {{ if and (hasPrefix . "img/plate-") (not $.Params.plate_note) }}{{ errorf "entry %q has a specimen plate but no plate_note — plates must credit their owner" $.Params.number }}{{ end }}
+      {{ with $.Params.plate_note }}<figcaption>{{ . }}</figcaption>{{ end }}
+    </figure>
+    {{ end }}
+    <div class="article-cols{{ if not $hasRail }} article-solo{{ end }}">
+      {{ if $hasRail }}
+      <aside class="rail">
+        {{ partial "files-rail.html" . }}
+      </aside>
+      {{ end }}
+      <div class="article-main">
+        <div class="prose">
+          {{ .Content }}
+        </div>
+        {{ partial "spec-table.html" . }}
+        {{ if not $hasRail }}<p class="licence">{{ .Params.licence | default "CC BY-NC-SA 4.0" }} — free for non-commercial use.</p>{{ end }}
+        {{ partial "note-contributor.html" . }}
+        {{ partial "routes-foot.html" . }}
+        {{ $number := .Params.number }}
+        {{ $builds := where hugo.Data.builds.build "entry" $number }}
+        {{ with $builds }}
+        <section class="entry-builds">
+          <h2>Builds of this entry</h2>
+          <ul class="entry-builds-grid">
+            {{ range . }}
+            <li>
+              <figure>
+                {{ partial "pic.html" (dict "src" .img "alt" (printf "%s built by %s" .entry .builder) "sizes" "(min-width: 900px) 320px, 100vw") }}
+              </figure>
+              <p class="build-meta"><span class="mono">{{ .entry }}</span> · {{ .builder }}</p>
+              <p class="build-line">{{ .line }}</p>
+            </li>
+            {{ end }}
+          </ul>
+          <p class="entry-builds-foot"><a href="{{ "/builds/" | relURL }}">All members' builds</a> · Built one yourself? Post a photograph and a line — post@opamp.so.</p>
+        </section>
+        {{ end }}
+        {{ partial "provenance.html" . }}
+      </div>
+    </div>
+  </div>
+</article>
+{{ end }}

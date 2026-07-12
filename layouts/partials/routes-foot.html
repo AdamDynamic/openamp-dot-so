@@ -1,0 +1,13 @@
+{{- /* Routes 02/03, quiet, at the article's foot — prices always after
+      the files (which live in the rail). */ -}}
+{{ with .Params.purchase }}
+<section class="ways-in route-quiet">
+  <p class="rather">{{ $.Params.rather | default "If you'd rather not build it —" }}</p>
+  {{ range $i, $p := . }}
+  <div class="purchase">
+    <h3><span class="route-no mono">Route {{ printf "%02d" (add $i 2) }}</span> {{ $p.route }} — {{ $p.price }}</h3>
+    <p>{{ $p.note }}</p>
+  </div>
+  {{ end }}
+</section>
+{{ end }}

@@ -1,0 +1,29 @@
+[pedal-mod]
+ink = "#C2402A"
+name = "Pedal modification"
+plural = "Pedal modifications"
+
+[synth-module]
+ink = "#2B4C9B"
+name = "Synth module"
+plural = "Synth modules"
+
+[kit]
+ink = "#2E7D4F"
+name = "Kit"
+plural = "Kits & original designs"
+
+[release]
+ink = "#C98A1B"
+name = "Release"
+plural = "Releases"
+
+[event]
+ink = "#6C4A9E"
+name = "Event"
+plural = "Events"
+
+[paper]
+ink = "#25808E"
+name = "Paper"
+plural = "Papers & guides"

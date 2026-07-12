@@ -1,0 +1,27 @@
+{{- /* Route 01, promoted to the rail: the free files are the loudest
+      thing on the page. The repository (front matter `repo` — a
+      standalone repo or a mono-repo directory URL) is the SOURCE OF
+      TRUTH; `provides` lists the file kinds so nothing here can drift
+      out of date. Entries with neither repo nor copy_note become
+      single-column reading pages. */ -}}
+{{ if .Params.repo }}
+<section class="rail-files">
+  <h2><span class="route-no mono">Route 01</span> Build it yourself</h2>
+  {{ with .Params.provides }}
+  <ul class="files mono">
+    {{ range . }}
+    <li><span>{{ . }}</span></li>
+    {{ end }}
+  </ul>
+  {{ end }}
+  <p class="download-line"><a class="download-all" href="{{ .Params.repo }}">Open the repository →</a></p>
+  <p class="repo-note">Files, revisions and corrections live in the repository.</p>
+  <p class="licence">{{ .Params.licence | default "CC BY-NC-SA 4.0" }} — free for non-commercial use. Copy, build, improve, share alike.</p>
+</section>
+{{ else if .Params.copy_note }}
+<section class="rail-files">
+  <h2><span class="route-no mono">Route 01</span> Copy it</h2>
+  <div class="prose">{{ .Params.copy_note | markdownify }}</div>
+  <p class="licence">{{ .Params.licence | default "Analogue sharing licence" }} — copies on tape inherit it.</p>
+</section>
+{{ end }}

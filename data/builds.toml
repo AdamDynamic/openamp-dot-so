@@ -1,0 +1,44 @@
+# Curated member builds. Editorial, not a feed.
+# Builder names are mockup placeholders — see README.md.
+
+[[build]]
+builder = "Jo M."
+entry = "OPAMP-0004"
+category = "pedal-mod"
+line = "Germanium position hasn’t been switched off since the first evening. Her socketing note became v1.1 — see the provenance."
+img = "img/portrait-01.jpg"
+
+[[build]]
+builder = "hexbender"
+entry = "OPAMP-0001"
+category = "synth-module"
+line = "Panel redrawn to my own 25 mm grid. Squelches exactly as promised."
+img = "img/people-patch.jpg"
+
+[[build]]
+builder = "Priya"
+entry = "OPAMP-0005"
+category = "pedal-mod"
+line = "First soldering since school. The toggle took twenty minutes; finding the drill took two days."
+img = "img/portrait-02.jpg"
+
+[[build]]
+builder = "Tomasz W."
+entry = "OPAMP-0002"
+category = "synth-module"
+line = "All four LFOs within a couple of per cent of each other. Quietly satisfying."
+img = "img/people-bench.jpg"
+
+[[build]]
+builder = "el_farad"
+entry = "OPAMP-0006"
+category = "pedal-mod"
+line = "Bass mod on a battered BD-2 from the classifieds. It has found its second life."
+img = "img/build-bd2.jpg"
+
+[[build]]
+builder = "Ruth & Ash"
+entry = "OPAMP-0004"
+category = "pedal-mod"
+line = "Built two the same evening, one for each pedalboard. The desoldering is the whole lesson."
+img = "img/build-pair.jpg"
